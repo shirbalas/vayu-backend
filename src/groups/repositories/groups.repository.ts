@@ -23,7 +23,6 @@ export class GroupsRepository {
     }
   }
 
-  /** שינוי סטטוס קבוצה (משמש אחרי מחיקה) */
   setStatus(groupId: string, status: GroupStatus) {
     const g = this.groupsById.get(groupId);
     if (g) {
@@ -32,10 +31,6 @@ export class GroupsRepository {
     }
   }
 
-  /**
-   * Limit/Offset בלבד (ללא סינונים). סדר דטרמיניסטי לפי id.
-   * (אם תרצי memberCount בהחזרה – אפשר לחשב בשכבת ה-Service)
-   */
   list(opts: { limit: number | string; offset: number | string }) {
     const rawLimit = toNum(opts.limit, 20);
     const rawOffset = toNum(opts.offset, 0);
