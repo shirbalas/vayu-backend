@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'crypto';
 import { UsersModule } from './users/users.module';
-import { SeederService } from './seed/seeder.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GroupsModule } from './groups/groups.module';
@@ -51,6 +50,6 @@ import { UserGroupsModule } from './user-groups/user-groups.module';
     UserGroupsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SeederService],
+  providers: [AppService],
 })
 export class AppModule {}

@@ -1,22 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from 'nestjs-pino';
-import { ValidationPipe } from '@nestjs/common';
+import { connectMongo } from './db/mongo';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ProblemFilter } from './common/filters/problem.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  await connectMongo();
 
-  app.useLogger(app.get(Logger));
-
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  app.useGlobalFilters(new ProblemFilter());
-
-  app.use((req: any, res, next) => {
-    if (req?.id) res.setHeader('x-request-id', req.id);
-    next();
-  });
+  const app = await NestFactory.create(AppModule, { cors: true });
 
   const config = new DocumentBuilder()
     .setTitle('Vayu Assignment API')
@@ -26,6 +16,7 @@ async function bootstrap() {
   const doc = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, doc);
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000);
+  console.log(`HTTP on http://localhost:${process.env.PORT || 3000}`);
 }
 bootstrap();

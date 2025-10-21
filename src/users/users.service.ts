@@ -12,9 +12,9 @@ export class UsersService {
     this.logger.setContext(UsersService.name);
   }
 
-  list(q: { limit: number | string; offset: number | string }) {
+  async list(q: { limit: number | string; offset: number | string }) {
     try {
-      const res = this.repo.list(q);
+      const res = await this.repo.list(q);
       this.logger.info(
         { limit: res.limit, offset: res.offset, count: res.items.length },
         'users listed (limit/offset)',

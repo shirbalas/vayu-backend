@@ -16,35 +16,29 @@ export class UserGroupsService {
     this.logger.setContext(UserGroupsService.name);
   }
 
-  remove(userId: string, groupId: string) {
-    try {
-      const deleted = this.repo.remove(userId, groupId);
-      if (!deleted) {
-        throw AppError.notFound(ErrCode.NOT_FOUND, { userId, groupId });
-      }
-
-      const count = this.repo.countByGroup().get(groupId) ?? 0;
-      if (count === 0) {
-        this.groupsRepo.setStatus(groupId, GroupStatus.EMPTY);
-        this.logger.info(
-          { userId, groupId },
-          'group is now empty → status updated to empty',
-        );
-      } else {
-        this.groupsRepo.setStatus(groupId, GroupStatus.NOTEMPTY);
-      }
-
-      this.logger.info({ userId, groupId, deleted }, 'user removed from group');
-      return {
-        deleted,
-        groupId,
-        memberCount: count,
-        status: count === 0 ? GroupStatus.EMPTY : GroupStatus.NOTEMPTY,
-      };
-    } catch (e) {
-      if (e instanceof AppError) throw e;
-      this.logger.error({ err: e, userId, groupId }, 'remove failed');
-      throw AppError.internal({ userId, groupId });
+  async remove(userId: string, groupId: string) {
+    const deleted = await this.repo.remove(userId, groupId);
+    if (!deleted) {
+      throw AppError.notFound(ErrCode.NOT_FOUND, { userId, groupId });
     }
+
+    const memberCount = await this.repo.countByGroup(groupId);
+
+    await this.groupsRepo.setStatus(
+      groupId,
+      memberCount === 0 ? GroupStatus.EMPTY : GroupStatus.NOTEMPTY,
+    );
+
+    this.logger.info(
+      { userId, groupId, deleted, memberCount },
+      'user removed from group → group status updated',
+    );
+
+    return {
+      deleted,
+      groupId,
+      memberCount,
+      status: memberCount === 0 ? GroupStatus.EMPTY : GroupStatus.NOTEMPTY,
+    };
   }
 }

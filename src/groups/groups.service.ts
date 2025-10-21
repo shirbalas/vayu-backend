@@ -12,9 +12,9 @@ export class GroupsService {
     this.logger.setContext(GroupsService.name);
   }
 
-  list(q: { limit: number | string; offset: number | string }) {
+  async list(q: { limit: number | string; offset: number | string }) {
     try {
-      const res = this.repo.list(q);
+      const res = await this.repo.list(q);
       this.logger.info(
         { limit: res.limit, offset: res.offset, count: res.items.length },
         'groups listed (limit/offset)',
